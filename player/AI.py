@@ -263,8 +263,8 @@ class AI:
         def_piece_val           = 0.75 
         atk_piece_percent_val   = 0.35
         check_val               = 400
-        pawn_progression_val    = 5
-        pawn_promo_val          = 1000
+        pawn_progression_val    = 20
+        pawn_promo_val          = 10000
         checkmate_val           = 1000000
         
         back_file_opp           = 0
@@ -276,8 +276,7 @@ class AI:
                 if gametiles[y][x].pieceonTile.tostring()=='P':
                     value=value-pawn_value
                     value=value - ((y - 1) * pawn_progression_val)
-                    if y == back_file_us:
-                        value=value-pawn_promo_val
+
                 if gametiles[y][x].pieceonTile.tostring()=='N':
                     value=value-knight_value
 
@@ -289,7 +288,9 @@ class AI:
 
                 if gametiles[y][x].pieceonTile.tostring()=='Q':
                     value=value-queen_value
-
+                    if y == back_file_us:
+                        value=value-pawn_promo_val
+                        
                 if gametiles[y][x].pieceonTile.tostring()=='K':
                     value=value-king_value
                     #King spaces availible
@@ -300,8 +301,6 @@ class AI:
                 if gametiles[y][x].pieceonTile.tostring()=='p':
                     value=value+pawn_value
                     value=value + ((back_file_us - 1 - y) * pawn_progression_val)
-                    if y == back_file_opp:
-                        value=value+pawn_promo_val
                 if gametiles[y][x].pieceonTile.tostring()=='n':
                     value=value+knight_value
 
@@ -313,7 +312,9 @@ class AI:
 
                 if gametiles[y][x].pieceonTile.tostring()=='q':
                     value=value+queen_value
-
+                    if y == back_file_opp:
+                        value=value+pawn_promo_val
+                        
                 if gametiles[y][x].pieceonTile.tostring()=='k':
                     value=value+king_value
                     #King spaces availible
