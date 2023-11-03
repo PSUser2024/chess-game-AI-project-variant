@@ -251,6 +251,7 @@ class AI:
 
 
     def calculateb(self,gametiles):
+        #Values and weights
         space_value             = 1
         pawn_value              = 100
         knight_value            = 350
@@ -273,8 +274,10 @@ class AI:
         value=0
         for y in range(8):
             for x in range(8):
+            #Adding or subtracting value for each type of piece on board
                 if gametiles[y][x].pieceonTile.tostring()=='P':
                     value=value-pawn_value
+                    #Add value if pawn in progressing down board
                     value=value - ((y - 1) * pawn_progression_val)
 
                 if gametiles[y][x].pieceonTile.tostring()=='N':
@@ -295,11 +298,13 @@ class AI:
                     value=value-king_value
                     #King spaces availible
                     value=value-(king_move_per_space_val * len(gametiles[y][x].pieceonTile.legalmoveb(gametiles)))
+                    #Encourages King to stay in the back file
                     if y == back_file_us:
                         value=value-king_on_back_file
 
                 if gametiles[y][x].pieceonTile.tostring()=='p':
                     value=value+pawn_value
+                    #Add value if pawn in progressing down board    
                     value=value + ((back_file_us - 1 - y) * pawn_progression_val)
                 if gametiles[y][x].pieceonTile.tostring()=='n':
                     value=value+knight_value
@@ -312,6 +317,7 @@ class AI:
 
                 if gametiles[y][x].pieceonTile.tostring()=='q':
                     value=value+queen_value
+                    #Add value if a pawn turns into a queen on last row
                     if y == back_file_opp:
                         value=value+pawn_promo_val
                         
@@ -328,10 +334,10 @@ class AI:
                     moves = gametiles[y][x].pieceonTile.legalmoveb(gametiles)
                     if moves != None:
                         for move in moves:
-                            #HOLDING SPACE
+                            #Subtract value if the piece is taking up space
                             if gametiles[move[0]][move[1]].pieceonTile.tostring()=='-':
                                 value=value-space_value
-                            #DEFENSE
+                            #Subtract value if the piece is guarding one of its own
                             if gametiles[move[0]][move[1]].pieceonTile.tostring()=='P':
                                 value=value-(pawn_value * def_piece_val)
 
@@ -349,7 +355,7 @@ class AI:
 
                             if gametiles[move[0]][move[1]].pieceonTile.tostring()=='K':
                                 value=value-(king_value * def_piece_val)
-                            #OFFENSE    
+                            #Subtract value if the piece is attacking opponent piece    
                             if gametiles[move[0]][move[1]].pieceonTile.tostring()=='p':
                                 value=value-(pawn_value * atk_piece_percent_val)
                             
@@ -372,10 +378,10 @@ class AI:
                     moves = gametiles[y][x].pieceonTile.legalmoveb(gametiles)
                     if moves != None:
                         for move in moves:
-                            #HOLDING SPACE
+                            #Add value if the piece is taking up space
                             if gametiles[move[0]][move[1]].pieceonTile.tostring()=='-':
                                 value=value+space_value
-                            #OFFENSE
+                            #Add value if the piece is attacking opponent piece    
                             if gametiles[move[0]][move[1]].pieceonTile.tostring()=='P':
                                 value=value+(pawn_value * atk_piece_percent_val)
                                 
@@ -393,7 +399,7 @@ class AI:
 
                             if gametiles[move[0]][move[1]].pieceonTile.tostring()=='K':
                                 value=value+check_val
-                            #DEFENSE    
+                            #Add value if the piece is guarding one of its own
                             if gametiles[move[0]][move[1]].pieceonTile.tostring()=='p':
                                 value=value+(pawn_value * def_piece_val)
                             
