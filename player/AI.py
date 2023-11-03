@@ -251,46 +251,166 @@ class AI:
 
 
     def calculateb(self,gametiles):
+        space_value             = 1
+        pawn_value              = 100
+        knight_value            = 350
+        bishop_value            = 350
+        rook_value              = 525
+        queen_value             = 900
+        king_value              = 10000
+        king_move_per_space_val = 10
+        king_on_back_file       = 50
+        def_piece_val           = 0.75 
+        atk_piece_percent_val   = 0.35
+        check_val               = 400
+        pawn_progression_val    = 5
+        pawn_promo_val          = 1000
+        checkmate_val           = 1000000
+        
+        back_file_opp           = 0
+        back_file_us            = 7
+       
         value=0
-        for x in range(8):
-            for y in range(8):
-                    if gametiles[y][x].pieceonTile.tostring()=='P':
-                        value=value-100
+        for y in range(8):
+            for x in range(8):
+                if gametiles[y][x].pieceonTile.tostring()=='P':
+                    value=value-pawn_value
+                    value=value - ((y - 1) * pawn_progression_val)
+                    if y == back_file_us:
+                        value=value-pawn_promo_val
+                if gametiles[y][x].pieceonTile.tostring()=='N':
+                    value=value-knight_value
 
-                    if gametiles[y][x].pieceonTile.tostring()=='N':
-                        value=value-350
+                if gametiles[y][x].pieceonTile.tostring()=='B':
+                    value=value-bishop_value
 
-                    if gametiles[y][x].pieceonTile.tostring()=='B':
-                        value=value-350
+                if gametiles[y][x].pieceonTile.tostring()=='R':
+                    value=value-rook_value
 
-                    if gametiles[y][x].pieceonTile.tostring()=='R':
-                        value=value-525
+                if gametiles[y][x].pieceonTile.tostring()=='Q':
+                    value=value-queen_value
 
-                    if gametiles[y][x].pieceonTile.tostring()=='Q':
-                        value=value-1000
+                if gametiles[y][x].pieceonTile.tostring()=='K':
+                    value=value-king_value
+                    #King spaces availible
+                    value=value-(king_move_per_space_val * len(gametiles[y][x].pieceonTile.legalmoveb(gametiles)))
+                    if y == back_file_us:
+                        value=value-king_on_back_file
 
-                    if gametiles[y][x].pieceonTile.tostring()=='K':
-                        value=value-10000
+                if gametiles[y][x].pieceonTile.tostring()=='p':
+                    value=value+pawn_value
+                    value=value + ((back_file_us - 1 - y) * pawn_progression_val)
+                    if y == back_file_opp:
+                        value=value+pawn_promo_val
+                if gametiles[y][x].pieceonTile.tostring()=='n':
+                    value=value+knight_value
 
-                    if gametiles[y][x].pieceonTile.tostring()=='p':
-                        value=value+100
+                if gametiles[y][x].pieceonTile.tostring()=='b':
+                    value=value+bishop_value
 
-                    if gametiles[y][x].pieceonTile.tostring()=='n':
-                        value=value+350
+                if gametiles[y][x].pieceonTile.tostring()=='r':
+                    value=value+rook_value
 
-                    if gametiles[y][x].pieceonTile.tostring()=='b':
-                        value=value+350
+                if gametiles[y][x].pieceonTile.tostring()=='q':
+                    value=value+queen_value
 
-                    if gametiles[y][x].pieceonTile.tostring()=='r':
-                        value=value+525
+                if gametiles[y][x].pieceonTile.tostring()=='k':
+                    value=value+king_value
+                    #King spaces availible
+                    value=value + (100 * len(gametiles[y][x].pieceonTile.legalmoveb(gametiles)))
+                    #Keeping King back
+                    if y == back_file_opp:
+                        value=value+king_on_back_file
+                        
+                #For each piece oppenent has in posession, give value for each attack and defense it has
+                if (gametiles[y][x].pieceonTile.tostring() != '-') and (gametiles[y][x].pieceonTile.tostring().isupper()):
+                    moves = gametiles[y][x].pieceonTile.legalmoveb(gametiles)
+                    if moves != None:
+                        for move in moves:
+                            #HOLDING SPACE
+                            if gametiles[move[0]][move[1]].pieceonTile.tostring()=='-':
+                                value=value-space_value
+                            #DEFENSE
+                            if gametiles[move[0]][move[1]].pieceonTile.tostring()=='P':
+                                value=value-(pawn_value * def_piece_val)
 
-                    if gametiles[y][x].pieceonTile.tostring()=='q':
-                        value=value+1000
+                            if gametiles[move[0]][move[1]].pieceonTile.tostring()=='N':
+                                value=value-(knight_value * def_piece_val)
 
-                    if gametiles[y][x].pieceonTile.tostring()=='k':
-                        value=value+10000
+                            if gametiles[move[0]][move[1]].pieceonTile.tostring()=='B':
+                                value=value-(bishop_value * def_piece_val)
 
-        return value
+                            if gametiles[move[0]][move[1]].pieceonTile.tostring()=='R':
+                                value=value-(rook_value * def_piece_val)
+
+                            if gametiles[move[0]][move[1]].pieceonTile.tostring()=='Q':
+                                value=value-(queen_value * def_piece_val)
+
+                            if gametiles[move[0]][move[1]].pieceonTile.tostring()=='K':
+                                value=value-(king_value * def_piece_val)
+                            #OFFENSE    
+                            if gametiles[move[0]][move[1]].pieceonTile.tostring()=='p':
+                                value=value-(pawn_value * atk_piece_percent_val)
+                            
+                            if gametiles[move[0]][move[1]].pieceonTile.tostring()=='n':
+                                value=value-(knight_value * atk_piece_percent_val)
+
+                            if gametiles[move[0]][move[1]].pieceonTile.tostring()=='b':
+                                value=value-(bishop_value * atk_piece_percent_val)
+
+                            if gametiles[move[0]][move[1]].pieceonTile.tostring()=='r':
+                                value=value-(rook_value * atk_piece_percent_val)
+
+                            if gametiles[move[0]][move[1]].pieceonTile.tostring()=='q':
+                                value=value-(queen_value * atk_piece_percent_val)
+
+                            if gametiles[move[0]][move[1]].pieceonTile.tostring()=='k':
+                                value=value-check_val
+                                
+                if (gametiles[y][x].pieceonTile.tostring() != '-') and (gametiles[y][x].pieceonTile.tostring().islower()):
+                    moves = gametiles[y][x].pieceonTile.legalmoveb(gametiles)
+                    if moves != None:
+                        for move in moves:
+                            #HOLDING SPACE
+                            if gametiles[move[0]][move[1]].pieceonTile.tostring()=='-':
+                                value=value+space_value
+                            #OFFENSE
+                            if gametiles[move[0]][move[1]].pieceonTile.tostring()=='P':
+                                value=value+(pawn_value * atk_piece_percent_val)
+                                
+                            if gametiles[move[0]][move[1]].pieceonTile.tostring()=='N':
+                                value=value+(knight_value * atk_piece_percent_val)
+
+                            if gametiles[move[0]][move[1]].pieceonTile.tostring()=='B':
+                                value=value+(bishop_value * atk_piece_percent_val)
+
+                            if gametiles[move[0]][move[1]].pieceonTile.tostring()=='R':
+                                value=value+(rook_value * atk_piece_percent_val)
+
+                            if gametiles[move[0]][move[1]].pieceonTile.tostring()=='Q':
+                                value=value+(queen_value * atk_piece_percent_val)
+
+                            if gametiles[move[0]][move[1]].pieceonTile.tostring()=='K':
+                                value=value+check_val
+                            #DEFENSE    
+                            if gametiles[move[0]][move[1]].pieceonTile.tostring()=='p':
+                                value=value+(pawn_value * def_piece_val)
+                            
+                            if gametiles[move[0]][move[1]].pieceonTile.tostring()=='n':
+                                value=value+(knight_value * def_piece_val)
+
+                            if gametiles[move[0]][move[1]].pieceonTile.tostring()=='b':
+                                value=value+(bishop_value * def_piece_val)
+
+                            if gametiles[move[0]][move[1]].pieceonTile.tostring()=='r':
+                                value=value+(rook_value * def_piece_val)
+
+                            if gametiles[move[0]][move[1]].pieceonTile.tostring()=='q':
+                                value=value+(queen_value * def_piece_val)
+
+                            if gametiles[move[0]][move[1]].pieceonTile.tostring()=='k':
+                                value=value+(king_value * def_piece_val) 
+        return int(value)
 
 
     def move(self,gametiles,y,x,n,m):
